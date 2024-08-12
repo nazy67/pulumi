@@ -1,4 +1,3 @@
-configuration:
   # Providers variable
   awsRegion:
     type: string
