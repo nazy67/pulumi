@@ -1,0 +1,4 @@
+name: vpc
+runtime: yaml
+config:
+  aws:region: us-east-1

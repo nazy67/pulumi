@@ -1,0 +1,106 @@
+configuration:
+  # Providers variable
+  awsRegion:
+    type: string
+    default: us-east-1
+  # VPC variables
+  vpcCidrBlock:
+    type: string
+    default: 10.0.0.0/16
+  # Subnet variables
+  awsAz1a:
+    type: string
+    default: us-east-1a
+  awsAz1b:
+    type: string
+    default: us-east-1b
+  cidrBlock:
+    type: string
+    default: 0.0.0.0/0
+  pubCidr1Subnet:
+    type: string
+    default: 10.0.1.0/24
+  pubCidr2Subnet:
+    type: string
+    default: 10.0.2.0/24
+  # Tags variables
+  env:
+    type: string
+    default: dev
+  managedBy:
+    type: string
+    default: pulumi
+  owner:
+    type: string
+    default: nazy.khalilova
+resources:
+  # VPC
+  myVpc:
+    type: aws:ec2:Vpc
+    name: my_vpc
+    properties:
+      cidrBlock: ${vpcCidrBlock}
+      instanceTenancy: default
+      enableDnsSupport: true
+      enableDnsHostnames: true
+      tags:
+        Name: ${env}_vpc
+  # Public Subnets
+  publicSubnet1:
+    type: aws:ec2:Subnet
+    name: public_subnet_1
+    properties:
+      vpcId: ${myVpc.id}
+      cidrBlock: ${pubCidr1Subnet}
+      availabilityZone: ${awsAz1a}
+      tags:
+        Name: ${env}_pub_sub1
+  pubSubnet2:
+    type: aws:ec2:Subnet
+    name: pub_subnet_2
+    properties:
+      vpcId: ${myVpc.id}
+      cidrBlock: ${pubCidr2Subnet}
+      availabilityZone: ${awsAz1b}
+      tags:
+        Name: ${env}_pub_sub2
+  # Internet Gateway
+  igw:
+    type: aws:ec2:InternetGateway
+    properties:
+      vpcId: ${myVpc.id}
+      tags:
+        Name: ${env}_igw
+  # Public Route Table
+  pubRtb:
+    type: aws:ec2:RouteTable
+    name: pub_rtb
+    properties:
+      vpcId: ${myVpc.id}
+      routes:
+        - cidrBlock: ${cidrBlock}
+          gatewayId: ${igw.id}
+      tags:
+        Name: ${env}_pub_rtb
+  # Public Route Table Association
+  pubSub1:
+    type: aws:ec2:RouteTableAssociation
+    name: pub_sub1
+    properties:
+      subnetId: ${publicSubnet1.id}
+      routeTableId: ${pubRtb.id}
+  pubSub2:
+    type: aws:ec2:RouteTableAssociation
+    name: pub_sub2
+    properties:
+      subnetId: ${publicSubnet2.id}
+      routeTableId: ${pubRtb.id}
+variables:
+  commonTags:
+    environment: ${env}
+    managedBy: ${managedBy}
+    owner: ${owner}
+outputs:
+  vpcId: ${myVpc.id}
+  publicSubnet1: ${publicSubnet1.id}
+  privateSubnet2: ${privateSubnet2AwsSubnet.id}
