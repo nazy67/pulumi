@@ -1,3 +1,10 @@
+name: vpc
+runtime: yaml
+description: A minimal AWS Pulumi YAML program
+config:
+  pulumi:tags:
+    value:
+      pulumi:template: aws-native-yaml
   # Providers variable
   awsRegion:
     type: string
@@ -54,9 +61,9 @@ resources:
       availabilityZone: ${awsAz1a}
       tags:
         Name: ${env}_pub_sub1
-  pubSubnet2:
+  publicSubnet2:
     type: aws:ec2:Subnet
-    name: pub_subnet_2
+    name: public_subnet_2
     properties:
       vpcId: ${myVpc.id}
       cidrBlock: ${pubCidr2Subnet}
@@ -102,4 +109,4 @@ variables:
 outputs:
   vpcId: ${myVpc.id}
   publicSubnet1: ${publicSubnet1.id}
-  privateSubnet2: ${privateSubnet2AwsSubnet.id}
+  privateSubnet2: ${publicSubnet2.id}
